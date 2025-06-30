@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import time
+import threading
 from datetime import datetime
 
 from typing import Optional
@@ -24,15 +25,37 @@ class ReceiptProcessor(FileSystemEventHandler):
         self.extract_service = ExtractService()
         self.db = DatabaseManager()
         self.use_mock = use_mock
-
+        self.processing_queue = {}  # filename -> {retries, status}
+        self.max_retries = 3 # TODO: Make this configurable
+        
+        # Start background worker
+        threading.Thread(target=self._queue_worker, daemon=True).start()
+            
     def on_created(self, event):
         """Called when a new file is added."""
         if not event.is_directory and is_supported_file(event.src_path):
             self.logger.info(f"New file detected: {event.src_path}")
-            self.process_image(event.src_path)
+            self._enqueue(event.src_path)
 
-    def process_image(self, image_path: str):
-        """Handles image processing, real or mock."""
+    def _enqueue(self, image_path: str):
+        if image_path in self.processing_queue:
+            self.logger.debug(f"Already in queue: {image_path}")
+            return
+
+        self.processing_queue[image_path] = {"retries": 0, "status": "pending"}
+        self.logger.info(f"Enqueued for processing: {image_path}")
+        
+    def _queue_worker(self):
+        while True:
+            for path, meta in list(self.processing_queue.items()):
+                if meta["status"] != "pending":
+                    continue
+                meta["status"] = "processing"
+                self._process_image(path)
+            time.sleep(2)  # Polling delay
+            
+    def _process_image(self, image_path: str):
+        self.logger.info(f"Processing: {image_path}")
         try:
             result = (
                 self.mock_process_image()
@@ -41,12 +64,29 @@ class ReceiptProcessor(FileSystemEventHandler):
             )
 
             if not result:
-                return
+                raise ValueError("Processing returned no result.")
 
             self._handle_result(result, image_path)
+            del self.processing_queue[image_path]
 
         except Exception as e:
-            self.logger.error(f"Error processing {image_path}: {str(e)}")
+            self._handle_processing_failure(image_path, e)
+
+    def _handle_processing_failure(self, image_path: str, error: Exception):
+        meta = self.processing_queue.get(image_path, {})
+        retries = meta.get("retries", 0) + 1
+        meta["retries"] = retries
+
+        if retries >= self.max_retries:
+            self.logger.error(f"Max retries reached for {image_path}. Moving to failed folder. Error: {error}")
+            meta["status"] = "failed"
+            self._move_to_failed_folder(image_path)
+            del self.processing_queue[image_path]
+        else:
+            self.logger.warning(f"Retrying {image_path} (attempt {retries}) due to error: {error}")
+            meta["status"] = "pending"
+            self.processing_queue[image_path] = meta
+
 
     def _process_image_from_path(self, image_path: str):
         with open(image_path, 'rb') as f:
@@ -132,3 +172,20 @@ class ReceiptProcessor(FileSystemEventHandler):
 
         except Exception as e:
             self.logger.error(f"Failed to move file: {str(e)}")
+            
+    def _move_to_failed_folder(self, image_path: str):
+        try:
+            os.makedirs(Config.FAILED_FOLDER, exist_ok=True)
+            filename = os.path.basename(image_path)
+            target_path = os.path.join(Config.FAILED_FOLDER, filename)
+
+            if os.path.exists(target_path):
+                name, ext = os.path.splitext(filename)
+                timestamp = int(time.time())
+                target_path = os.path.join(Config.FAILED_FOLDER, f"{name}_{timestamp}{ext}")
+
+            os.rename(image_path, target_path)
+            self.logger.info(f"Moved failed file to: {target_path}")
+
+        except Exception as e:
+            self.logger.error(f"Failed to move file to failed folder: {str(e)}")

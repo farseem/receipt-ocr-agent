@@ -23,6 +23,7 @@ class Config:
     # File monitoring
     WATCH_FOLDER: str = os.getenv("WATCH_FOLDER", "./input_images")
     PROCESSED_FOLDER: str = os.getenv("PROCESSED_FOLDER", "./processed_images")
+    FAILED_FOLDER = os.getenv("FAILED_FOLDER", "./failed_images")
     
     # Storage configuration
     DATABASE_PATH: str = os.getenv("DATABASE_PATH", "./storage/invoice_data.json")
@@ -81,6 +82,7 @@ class Config:
         directories = [
             cls.WATCH_FOLDER,
             cls.PROCESSED_FOLDER,
+            cls.FAILED_FOLDER,
             os.path.dirname(cls.DATABASE_PATH),
             os.path.dirname(cls.LOG_FILE),
         ]
