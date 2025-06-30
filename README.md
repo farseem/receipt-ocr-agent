@@ -7,6 +7,11 @@ A minimal, automated invoice processing system using Google Cloud Vision API for
 - **Real-time File Monitoring**: Automatically processes new images uploaded to a watched folder
 - **Google Cloud Vision OCR**: High-accuracy text extraction using Google's REST API
 - **LLM-Powered Field Extraction**: Uses OpenRouter API to intelligently extract structured invoice fields from OCR text
+- **Intelligent Retry Mechanism**: Automatic retry with configurable attempts for failed processing
+- **Failed File Management**: Files that fail processing after max retries are moved to failed folder
+- **Queue-based Processing**: In-memory queue with background worker thread for efficient processing
+- **Pluggable OCR Providers**: Factory pattern supporting mock and Google Vision providers
+- **Mock Mode**: Development mode with simulated OCR responses to avoid API costs during testing
 - **Lightweight Storage**: Stores extracted data in JSON format using TinyDB
 - **Simple Setup**: Minimal dependencies and easy configuration
 - **Comprehensive Logging**: Detailed logs for monitoring and debugging
@@ -19,10 +24,17 @@ OCR Agent/
 │   ├── __init__.py
 │   ├── main.py                # Main entry point with file monitoring
 │   ├── config.py              # Configuration management
+│   ├── agents/                # Processing agents
+│   │   └── receipt_processor.py  # Main processing logic with queue management
 │   ├── services/              # Core services
 │   │   ├── __init__.py
-│   │   ├── ocr_service.py     # Google Cloud Vision integration
-│   │   └── extract_service.py # Field extraction logic
+│   │   ├── extract_service.py # LLM field extraction logic
+│   │   └── ocr/               # OCR service providers
+│   │       ├── __init__.py
+│   │       ├── ocr_service.py     # Abstract OCR service
+│   │       ├── ocr_factory.py     # OCR provider factory
+│   │       ├── google_vision_ocr_service.py  # Google Vision implementation
+│   │       └── mock_ocr_service.py # Mock implementation for testing
 │   ├── storage/               # Data storage
 │   │   ├── __init__.py
 │   │   └── db.py              # TinyDB JSON storage
@@ -32,7 +44,8 @@ OCR Agent/
 ├── tests/                     # Test suite
 ├── data/                      # Data directories
 │   ├── input/                 # Watch folder for new images
-│   ├── processed/             # Processed images
+│   ├── processed/             # Successfully processed images
+│   ├── failed/                # Images that failed processing after retries
 │   └── storage/               # Database files
 ├── logs/                      # Log files (auto-generated)
 ├── credentials/               # Google Cloud credentials
@@ -98,12 +111,18 @@ copy .env.example .env
 
 # Edit .env file with your API keys:
 # Google Cloud:
-GOOGLE_API_KEY=your-google-api-key
+GOOGLE_VISION_API_KEY=your-google-vision-api-key
+GOOGLE_VISION_API_URL=https://vision.googleapis.com/v1/images:annotate
 # OR GOOGLE_APPLICATION_CREDENTIALS=path\to\service-account.json
 
 # OpenRouter:
 OPENROUTER_API_KEY=your-openrouter-api-key
-OPENROUTER_MODEL=meta-llama/llama-3.1-8b-instruct:free
+OPENROUTER_ENDPOINT=https://openrouter.ai/api/v1/chat/completions
+OPENROUTER_MODEL=mistralai/mistral-7b-instruct
+
+# Processing Configuration:
+OCR_CONFIDENCE_THRESHOLD=0.9
+FAILED_FOLDER=./data/failed
 ```
 
 ### 6. Directory Setup
@@ -121,13 +140,46 @@ cd src
 python main.py
 ```
 
+**Alternative - Using the CLI runner:**
+```powershell
+# From project root
+python run.py
+```
+
+### Mock vs Production Mode
+
+The system supports two operating modes:
+
+**🧪 Mock Mode (Development)**
+- Uses simulated OCR responses without API calls
+- Perfect for development and testing
+- No API costs incurred
+- Controlled, predictable results
+- Set `use_mock=True` in ReceiptProcessor initialization
+
+**🚀 Production Mode (Live API)**
+- Uses real Google Cloud Vision API
+- Requires valid API keys and credits
+- Real OCR processing of uploaded images
+- Set `use_mock=False` in ReceiptProcessor initialization
+
+**Why use Mock Mode?**
+- Develop and test without API costs
+- Predictable responses for testing logic
+- No dependency on internet connectivity
+- Faster development iteration
+python main.py
+```
+
 The system will:
 1. Monitor the `data/input/` folder for new images
-2. Process supported image formats (JPG, PNG, PDF, etc.)
-3. Extract text using Google Cloud Vision OCR
-4. Use OpenRouter LLM to intelligently extract structured invoice fields
-5. Store results in the JSON database (`data/storage/`)
-6. Move processed files to `data/processed/` folder
+2. Add detected files to an in-memory processing queue
+3. Process files using background worker thread with retry mechanism
+4. Extract text using Google Cloud Vision OCR (or mock responses in development)
+5. Use OpenRouter LLM to intelligently extract structured invoice fields
+6. Store results in the JSON database (`data/storage/`)
+7. Move successfully processed files to `data/processed/` folder
+8. Move failed files (after max retries) to `data/failed/` folder
 
 ### Adding Images for Processing
 
@@ -187,11 +239,15 @@ flake8 src/ tests/
 ## 🔍 How It Works
 
 1. **File Detection**: Watchdog monitors the `data/input/` folder for new files
-2. **Image Validation**: Checks file format and size
-3. **OCR Processing**: Google Cloud Vision REST API extracts raw text from images
-4. **LLM Field Extraction**: OpenRouter API uses AI to intelligently parse the OCR text and extract structured invoice fields
-5. **Data Storage**: Results stored in TinyDB JSON database
-6. **File Management**: Processed files moved to `data/processed/` folder
+2. **Queue Management**: Files are added to an in-memory processing queue with status tracking
+3. **Background Processing**: Dedicated worker thread processes queued files continuously
+4. **OCR Processing**: Google Cloud Vision REST API extracts raw text from images (or mock service in development)
+5. **LLM Field Extraction**: OpenRouter API uses AI to intelligently parse the OCR text and extract structured invoice fields
+6. **Retry Logic**: Failed processing attempts are automatically retried up to configurable maximum attempts
+7. **Data Storage**: Successfully processed results stored in TinyDB JSON database
+8. **File Management**: 
+   - Successfully processed files moved to `data/processed/` folder
+   - Failed files (after max retries) moved to `data/failed/` folder
 
 ## 📝 Configuration Options
 
@@ -199,7 +255,8 @@ Key environment variables in `.env`:
 
 ```bash
 # Google Cloud API Key (preferred method)
-GOOGLE_API_KEY=your-google-api-key
+GOOGLE_VISION_API_KEY=your-google-vision-api-key
+GOOGLE_VISION_API_URL=https://vision.googleapis.com/v1/images:annotate
 
 # OR Google Cloud Service Account (alternative)
 GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account.json
@@ -207,15 +264,16 @@ GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account.json
 # OpenRouter API for LLM field extraction
 OPENROUTER_API_KEY=your-openrouter-api-key
 OPENROUTER_ENDPOINT=https://openrouter.ai/api/v1/chat/completions
-OPENROUTER_MODEL=meta-llama/llama-3.1-8b-instruct:free
+OPENROUTER_MODEL=mistralai/mistral-7b-instruct
 
 # Directories (relative to project root)
 WATCH_FOLDER=./data/input
 PROCESSED_FOLDER=./data/processed
+FAILED_FOLDER=./data/failed
 
 # Processing
 MAX_FILE_SIZE_MB=10
-OCR_CONFIDENCE_THRESHOLD=0.7
+OCR_CONFIDENCE_THRESHOLD=0.9
 
 # Storage
 DATABASE_PATH=./data/storage/invoice_data.json
