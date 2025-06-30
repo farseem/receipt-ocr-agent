@@ -58,43 +58,46 @@ class OCRService:
     def _extract_text(self, image_bytes: bytes) -> Optional[dict]:
         """Call Google Vision API to extract text from image."""
         try:
-            if not self.api_key:
-                raise ValueError("GOOGLE_API_KEY is missing in Config")
-
-            image_base64 = base64.b64encode(image_bytes).decode("utf-8")
-
-            payload = {
-                "requests": [
-                    {
-                        "image": {"content": image_base64},
-                        "features": [{"type": "TEXT_DETECTION"}] # Use DOCUMENT_TEXT_DETECTION for confedence scores
-                    }
-                ]
-            }
-
-            response = requests.post(
-                f"{self.endpoint}?key={self.api_key}",
-                headers={"Content-Type": "application/json"},
-                json=payload
-            )
+            self._validate_api_key()
+            payload = self._build_vision_payload(image_bytes)
+            response = self._send_vision_request(payload)
 
             if response.status_code != 200:
                 self.logger.error(f"Google Vision API error: {response.text}")
                 return None
 
-            result = response.json()
-            annotations = result["responses"][0].get("textAnnotations", [])
-
-            if not annotations:
-                return None
-
-            full_text = annotations[0]["description"]
-            return {
-                "full_text": full_text,
-                "confidence": 0.95,  # Vision API REST does not return confidence here
-                "timestamp": time.time()
-            }
+            return self._parse_vision_response(response.json())
 
         except Exception as e:
             self.logger.error(f"Failed to extract text: {e}")
             return None
+
+    def _validate_api_key(self):
+        if not self.api_key:
+            raise ValueError("GOOGLE_API_KEY is missing in Config")
+
+    def _build_vision_payload(self, image_bytes: bytes) -> dict:
+        image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+        return {
+            "requests": [
+                {
+                    "image": {"content": image_base64},
+                    "features": [{"type": "TEXT_DETECTION"}]
+                }
+            ]
+        }
+
+    def _send_vision_request(self, payload: dict) -> requests.Response:
+        url = f"{self.endpoint}?key={self.api_key}"
+        return requests.post(url, headers={"Content-Type": "application/json"}, json=payload)
+
+    def _parse_vision_response(self, result: dict) -> Optional[dict]:
+        annotations = result["responses"][0].get("textAnnotations", [])
+        if not annotations:
+            return None
+
+        return {
+            "full_text": annotations[0]["description"],
+            "confidence": 0.95,  # Hardcoded due to API limitation
+            "timestamp": time.time()
+        }
