@@ -1,0 +1,5 @@
+# Core dependencies for OCR invoice processing
+watchdog>=2.1.9
+python-dotenv>=0.19.0
+tinydb>=4.7.0
+requests>=2.25.0

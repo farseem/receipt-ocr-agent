@@ -1,0 +1,372 @@
+{
+  "invoices": {
+    "1": {
+      "vendor": "Clas Ohlson",
+      "date": "2025-06-25",
+      "total_amount": "100.00",
+      "items": [
+        {
+          "name": "KOMB.H\u00c4NGL\u00c5S ALUM",
+          "price": "59.90"
+        },
+        {
+          "name": "KOMB.H\u00c4NGLAS ALUM",
+          "price": "59.90"
+        }
+      ],
+      "discount": "-19.90",
+      "payment_method": "MasterCard",
+      "net_amount": "79.92",
+      "confidence": 0.95,
+      "extracted_at": "2025-06-29",
+      "created_at": "2025-06-29",
+      "updated_at": "2025-06-29"
+    },
+    "2": {
+      "vendor": "Clas Ohlson",
+      "date": "2025-06-25",
+      "total_amount": "100.00",
+      "items": [
+        {
+          "name": "KOMB.H\u00c4NGL\u00c5S ALUM",
+          "price": "59.90"
+        },
+        {
+          "name": "KOMB.H\u00c4NGLAS ALUM",
+          "price": "59.90"
+        }
+      ],
+      "discount": "-19.90",
+      "payment_method": "MasterCard",
+      "confidence": 0.95,
+      "extracted_at": "2025-06-29",
+      "created_at": "2025-06-29",
+      "updated_at": "2025-06-29"
+    },
+    "3": {
+      "vendor": "Clas Ohlson",
+      "date": "2025-06-25",
+      "total_amount": "100.00",
+      "items": [
+        {
+          "name": "KOMB.H\u00c4NGL\u00c5S ALUM",
+          "price": "59.90"
+        },
+        {
+          "name": "KOMB.H\u00c4NGLAS ALUM",
+          "price": "59.90"
+        }
+      ],
+      "discount": "-19.90",
+      "payment_method": "MasterCard",
+      "confidence": 0.95,
+      "extracted_at": "2025-06-29",
+      "created_at": "2025-06-29",
+      "updated_at": "2025-06-29"
+    },
+    "4": {
+      "vendor": "Clas Ohlson",
+      "date": "2025-06-25",
+      "total_amount": "100.00",
+      "items": [
+        {
+          "name": "KOMB.H\u00c4NGL\u00c5S ALUM",
+          "price": "59.90"
+        },
+        {
+          "name": "KOMB.H\u00c4NGLAS ALUM",
+          "price": "59.90"
+        }
+      ],
+      "discount": "-19.90",
+      "payment_method": "MasterCard",
+      "confidence": 0.95,
+      "extracted_at": "2025-06-29",
+      "created_at": "2025-06-29",
+      "updated_at": "2025-06-29"
+    },
+    "5": {
+      "vendor": "Clas Ohlson",
+      "date": "2025-06-25",
+      "total_amount": "100.00",
+      "items": [
+        {
+          "name": "KOMB.H\u00c4NGL\u00c5S ALUM",
+          "price": "59.90"
+        },
+        {
+          "name": "KOMB.H\u00c4NGLAS ALUM",
+          "price": "59.90"
+        }
+      ],
+      "discount": "-19.90",
+      "payment_method": "MasterCard",
+      "confidence": 0.95,
+      "extracted_at": "2025-06-30",
+      "created_at": "2025-06-30",
+      "updated_at": "2025-06-30"
+    },
+    "6": {
+      "vendor": "Clas Ohlson",
+      "date": "2025-06-25",
+      "total_amount": "100.00",
+      "items": [
+        {
+          "name": "KOMB.H\u00c4NGL\u00c5S ALUM",
+          "price": "59.90"
+        },
+        {
+          "name": "KOMB.H\u00c4NGLAS ALUM",
+          "price": "59.90"
+        }
+      ],
+      "discount": "-19.90",
+      "payment_method": "MasterCard",
+      "confidence": 0.95,
+      "extracted_at": "2025-06-30",
+      "created_at": "2025-06-30",
+      "updated_at": "2025-06-30"
+    },
+    "7": {
+      "vendor": "Clas Ohlson",
+      "date": "2025-06-25",
+      "total_amount": "100.00",
+      "items": [
+        {
+          "name": "KOMB.H\u00c4NGL\u00c5S ALUM",
+          "price": "59.90"
+        },
+        {
+          "name": "KOMB.H\u00c4NGLAS ALUM",
+          "price": "59.90"
+        }
+      ],
+      "discount": "-19.90",
+      "payment_method": "MasterCard",
+      "confidence": 0.95,
+      "extracted_at": "2025-06-30",
+      "created_at": "2025-06-30",
+      "updated_at": "2025-06-30"
+    },
+    "8": {
+      "vendor": "Clas Ohlson",
+      "date": "2025-06-25",
+      "total_amount": "100.00",
+      "items": [
+        {
+          "name": "KOMB.H\u00c4NGL\u00c5S ALUM",
+          "price": "59.90"
+        },
+        {
+          "name": "KOMB.H\u00c4NGLAS ALUM",
+          "price": "59.90"
+        }
+      ],
+      "discount": "-19.90",
+      "payment_method": "MasterCard",
+      "confidence": 0.95,
+      "extracted_at": "2025-06-30",
+      "created_at": "2025-06-30",
+      "updated_at": "2025-06-30"
+    },
+    "9": {
+      "vendor": "Clas Ohlson",
+      "date": "2025-06-25",
+      "total_amount": "100.00",
+      "items": [
+        {
+          "name": "KOMB.H\u00c4NGL\u00c5S ALUM",
+          "price": "59.90"
+        },
+        {
+          "name": "KOMB.H\u00c4NGLAS ALUM",
+          "price": "59.90"
+        }
+      ],
+      "discount": "-19.90",
+      "payment_method": "MasterCard",
+      "confidence": 0.95,
+      "extracted_at": "2025-06-30",
+      "created_at": "2025-06-30",
+      "updated_at": "2025-06-30"
+    },
+    "10": {
+      "vendor": "Clas Ohlson",
+      "date": "2025-06-25",
+      "total_amount": "100.00",
+      "items": [
+        {
+          "name": "KOMB.H\u00c4NGL\u00c5S ALUM",
+          "price": "59.90"
+        },
+        {
+          "name": "KOMB.H\u00c4NGLAS ALUM",
+          "price": "59.90"
+        }
+      ],
+      "discount": "-19.90",
+      "payment_method": "MasterCard",
+      "confidence": 0.95,
+      "extracted_at": "2025-06-30",
+      "created_at": "2025-06-30",
+      "updated_at": "2025-06-30"
+    },
+    "11": {
+      "vendor": "Clas Ohlson",
+      "date": "2025-06-25",
+      "total_amount": "100.00",
+      "items": [
+        {
+          "name": "KOMB.H\u00c4NGL\u00c5S ALUM",
+          "price": "59.90"
+        },
+        {
+          "name": "KOMB.H\u00c4NGLAS ALUM",
+          "price": "59.90"
+        }
+      ],
+      "discount": "-19.90",
+      "payment_method": "MasterCard",
+      "items_with_discount": [
+        {
+          "name": "Komb.hangl\u00e5s 2 for 99,90",
+          "price": "-19.90"
+        }
+      ],
+      "confidence": 0.95,
+      "extracted_at": "2025-06-30",
+      "created_at": "2025-06-30",
+      "updated_at": "2025-06-30"
+    },
+    "12": {
+      "vendor": "OoB Malmo Mobilia",
+      "date": "2025-06-25",
+      "total_amount": "74.00SEK",
+      "items": [
+        {
+          "name": "Snickers mini",
+          "price": "3339"
+        },
+        {
+          "name": "Tortilla original",
+          "price": "18.00"
+        }
+      ],
+      "payment_method": "Swedbank Pay, Debit MasterCard",
+      "discount": {
+        "amount": "11.00",
+        "percentage": "30.6%"
+      },
+      "confidence": 0.95,
+      "extracted_at": "2025-06-30",
+      "created_at": "2025-06-30",
+      "updated_at": "2025-06-30"
+    },
+    "13": {
+      "vendor": "Walat Frukt & Gr\u00f6nt",
+      "date": "2025-06-27",
+      "total_amount": "65.00",
+      "items": [
+        {
+          "name": "Frukt & Gr\u00f6nt",
+          "price": "65.00"
+        }
+      ],
+      "payment_method": "Debit MasterCard",
+      "discount": {
+        "type": "VAT",
+        "rate": "12%",
+        "amount": "6.96"
+      },
+      "confidence": 0.95,
+      "extracted_at": "2025-06-30",
+      "created_at": "2025-06-30",
+      "updated_at": "2025-06-30"
+    },
+    "14": {
+      "vendor": "Walat Frukt & Gr\u00f6nt",
+      "date": "2025-06-27",
+      "total_amount": "65.00",
+      "items": [
+        {
+          "name": "Frukt & Gr\u00f6nt",
+          "price": "65.00"
+        }
+      ],
+      "payment_method": "Debit MasterCard",
+      "discount": {
+        "type": "VAT",
+        "rate": "12%",
+        "amount": "6.96"
+      },
+      "confidence": 0.95,
+      "extracted_at": "2025-06-30",
+      "created_at": "2025-06-30",
+      "updated_at": "2025-06-30"
+    },
+    "15": {
+      "vendor": "Clas Ohlson",
+      "date": "2025-06-25",
+      "total_amount": "100.00",
+      "items": [
+        {
+          "name": "KOMB.H\u00c4NGL\u00c5S ALUM",
+          "price": "59.90"
+        },
+        {
+          "name": "KOMB.H\u00c4NGLAS ALUM",
+          "price": "59.90"
+        }
+      ],
+      "discount": "-19.90",
+      "payment_method": "MasterCard",
+      "net_total": "79.92",
+      "confidence": 0.95,
+      "extracted_at": "2025-06-30",
+      "created_at": "2025-06-30",
+      "updated_at": "2025-06-30"
+    },
+    "16": {
+      "vendor": "Clas Ohlson",
+      "date": "2025-06-25",
+      "total_amount": "100.00",
+      "items": [
+        {
+          "name": "KOMB.H\u00c4NGL\u00c5S ALUM",
+          "price": "59.90"
+        },
+        {
+          "name": "KOMB.H\u00c4NGLAS ALUM",
+          "price": "59.90"
+        }
+      ],
+      "discount": "-19.90",
+      "payment_method": "MasterCard",
+      "confidence": 0.95,
+      "extracted_at": "2025-06-30",
+      "created_at": "2025-06-30",
+      "updated_at": "2025-06-30"
+    },
+    "17": {
+      "vendor": "Clas Ohlson",
+      "date": "2025-06-25",
+      "total_amount": "100.00",
+      "items": [
+        {
+          "name": "KOMB.H\u00c4NGL\u00c5S ALUM",
+          "price": "59.90"
+        },
+        {
+          "name": "KOMB.H\u00c4NGLAS ALUM",
+          "price": "59.90"
+        }
+      ],
+      "discount": "-19.90",
+      "payment_method": "MasterCard",
+      "confidence": 0.95,
+      "extracted_at": "2025-06-30",
+      "created_at": "2025-06-30",
+      "updated_at": "2025-06-30"
+    }
+  }
+}
