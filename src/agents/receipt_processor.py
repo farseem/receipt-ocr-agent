@@ -10,23 +10,26 @@ from watchdog.events import FileSystemEventHandler
 
 from config import Config
 from services.extract_service import ExtractService
-from services.ocr_service import OCRService
+from services.ocr.ocr_service import OCRService
 from storage.db import DatabaseManager
 from utils.helpers import is_supported_file
+from services.ocr.ocr_factory import OCRServiceFactory
 
 
 class ReceiptProcessor(FileSystemEventHandler):
     """Watches for new receipt images and processes them."""
 
     # TODO: Must change the use_mock flag to False in production
-    def __init__(self, use_mock=True):
+    def __init__(self, use_mock=False):
         self.logger = logging.getLogger(__name__)
-        self.ocr_service = OCRService()
         self.extract_service = ExtractService()
         self.db = DatabaseManager()
         self.use_mock = use_mock
         self.processing_queue = {}  # filename -> {retries, status}
         self.max_retries = 3 # TODO: Make this configurable
+        
+        provider = "mock" if self.use_mock else "google"
+        self.ocr_service = OCRServiceFactory.get_ocr_service(provider)
         
         # Start background worker
         threading.Thread(target=self._queue_worker, daemon=True).start()
@@ -58,7 +61,7 @@ class ReceiptProcessor(FileSystemEventHandler):
         self.logger.info(f"Processing: {image_path}")
         try:
             result = (
-                self.mock_process_image()
+                self.mock_process_image(image_path)
                 if self.use_mock
                 else self._process_image_from_path(image_path)
             )
@@ -93,9 +96,11 @@ class ReceiptProcessor(FileSystemEventHandler):
             image_bytes = f.read()
         return self.ocr_service.process_image(image_bytes, os.path.basename(image_path))
 
-    def mock_process_image(self):
+    def mock_process_image(self, image_path: str):
         """Simulate OCR processing for development without API calls."""
-        result = self.ocr_service.mock_process_image()
+        with open(image_path, 'rb') as f:
+            image_bytes = f.read()
+        result = self.ocr_service.process_image(image_bytes, os.path.basename(image_path))
         self.logger.info(f"Mock OCR Result: {result}")
         return result
 
