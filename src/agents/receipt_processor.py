@@ -28,7 +28,7 @@ class ReceiptProcessor(FileSystemEventHandler):
     def on_created(self, event):
         """Called when a new file is added."""
         if not event.is_directory and is_supported_file(event.src_path):
-            self.logger.info(f"\U0001F4E5 New file detected: {event.src_path}")
+            self.logger.info(f"New file detected: {event.src_path}")
             self.process_image(event.src_path)
 
     def process_image(self, image_path: str):
@@ -56,7 +56,7 @@ class ReceiptProcessor(FileSystemEventHandler):
     def mock_process_image(self):
         """Simulate OCR processing for development without API calls."""
         result = self.ocr_service.mock_process_image()
-        self.logger.info(f"\U0001F50D Mock OCR Result: {result}")
+        self.logger.info(f"Mock OCR Result: {result}")
         return result
 
     def _handle_result(self, result, image_path: str):
@@ -105,8 +105,11 @@ class ReceiptProcessor(FileSystemEventHandler):
             doc_id = self.db.save_invoice_data(fields)
             self.logger.info(f"Invoice saved successfully with ID: {doc_id}")
             self.logger.info(f"Verifying saved invoice with ID: {doc_id}")
-            all_records = self.db.get_all_invoices()
-            print(json.dumps(all_records, indent=2))
+            
+            record = self.db.get_invoice_by_id(doc_id)
+            if record:
+                print(json.dumps(record, indent=2))
+                
             self._move_processed_file(image_path)
             return doc_id
         except Exception as e:

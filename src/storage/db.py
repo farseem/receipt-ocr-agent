@@ -40,6 +40,20 @@ class DatabaseManager:
             self.logger.error(f"Failed to save invoice: {e}")
             return -1
 
+    def get_invoice_by_id(self, doc_id: int) -> Optional[Dict[str, Any]]:
+        """Retrieve a single invoice by its document ID."""
+        try:
+            record = self.invoices.get(doc_id=doc_id)
+            if record:
+                self.logger.info(f"Invoice with ID {doc_id}:\n{record}")
+                return record
+            else:
+                self.logger.warning(f"No invoice found with ID: {doc_id}")
+                return None
+        except Exception as e:
+            self.logger.error(f"Failed to retrieve invoice by ID {doc_id}: {e}")
+            return None
+        
     def get_all_invoices(self) -> List[Dict[str, Any]]:
         """Return all saved invoices."""
         try:
