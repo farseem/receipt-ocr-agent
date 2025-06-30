@@ -4,6 +4,7 @@ import os
 import time
 from datetime import datetime
 
+from typing import Optional
 from watchdog.events import FileSystemEventHandler
 
 from config import Config
@@ -59,31 +60,47 @@ class ReceiptProcessor(FileSystemEventHandler):
         return result
 
     def _handle_result(self, result, image_path: str):
-        confidence = result.get("confidence", 0.0)
-
-        if confidence <= Config.OCR_CONFIDENCE_THRESHOLD:
-            self.logger.error(f"OCR confidence too low: {confidence:.2%}. Skipping.")
+        if not self._is_confidence_valid(result):
             return
 
         full_text = result.get("full_text", "")
         self.logger.info(f"Extracted text:\n{full_text}")
 
-        fields = self.extract_service.extract_invoice_fields(full_text)
+        fields = self._parse_fields(full_text)
+        if not fields:
+            return
 
+        finalized = self._finalize_invoice_data(fields, result)
+        self._save_and_confirm(finalized, image_path)
+
+    def _is_confidence_valid(self, result: dict) -> bool:
+        confidence = result.get("confidence", 0.0)
+        if confidence <= Config.OCR_CONFIDENCE_THRESHOLD:
+            self.logger.error(f"OCR confidence too low: {confidence:.2%}. Skipping.")
+            return False
+        return True
+
+    def _parse_fields(self, full_text: str) -> Optional[dict]:
+        fields = self.extract_service.extract_invoice_fields(full_text)
         if isinstance(fields, str):
             try:
                 fields = json.loads(fields)
             except json.JSONDecodeError as e:
                 self.logger.error(f"Failed to decode extracted fields: {e}")
-                return
+                return None
 
         if not isinstance(fields, dict) or not fields:
             self.logger.error("Extracted fields are empty or invalid. Skipping save.")
-            return
+            return None
 
-        fields['confidence'] = confidence
-        fields['extracted_at'] = datetime.now().strftime("%Y-%m-%d")
+        return fields
 
+    def _finalize_invoice_data(self, fields: dict, result: dict) -> dict:
+        fields["confidence"] = result.get("confidence", 0.0)
+        fields["extracted_at"] = datetime.now().strftime("%Y-%m-%d")
+        return fields
+
+    def _save_and_confirm(self, fields: dict, image_path: str):
         try:
             doc_id = self.db.save_invoice_data(fields)
             self.logger.info(f"Invoice saved successfully with ID: {doc_id}")
